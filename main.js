@@ -16,3 +16,17 @@ app.whenReady().then(() => {
   ipcMain.handle('ping', () => 'pong')
   createWindow()
 })
+
+app.on('window-all-closed', () => {
+  if (process.platform !== 'darwin') {
+    app.quit()
+  }
+})
+
+app.on('activate', () => {
+  if (BrowserWindow.getAllWindows().length === 0) {
+    createWindow()
+  }
+})
+
+require('update-electron-app')()
