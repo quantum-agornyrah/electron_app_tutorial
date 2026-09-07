@@ -1,10 +1,9 @@
 // Access the various elements in the DOM and add interactivity to the button.
-const setButton = document.getElementById('btn')
-const titleInput = document.getElementById('title')
+const btn = document.getElementById('btn')
+const filePathElement = document.getElementById('filePath')
 
-setButton.addEventListener('click', () => {
-  const title = titleInput.value
-
+btn.addEventListener('click', async () => {
   // EXPLAIN: Use the exposed window.electronAPI to call the button function in the main
-  window.electronAPI.setTitle(title)
+  const filePath = await window.electronAPI.openFile()
+  filePathElement.innerText = filePath;
 })
