@@ -12,10 +12,23 @@ const createWindow = () => {
   })
   win.loadFile('index.html')
 }
+
+// EXPLAIN: 1. When the app is ready, listen for events with ipcMain.on() API
 app.whenReady().then(() => {
-  ipcMain.handle('ping', () => 'pong')
+  ipcMain.on('set-title', handleSetTitle)
   createWindow()
+
+  app.on('activate', function () {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
 })
+
+// EXPLAIN: 2. Handle the set-title event with the callback function
+function handleSetTitle (event, title) {
+  const webContents = event.sender
+  const win = BrowserWindow.fromWebContents(webContents)
+  win.setTitle(title)
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -23,10 +36,7 @@ app.on('window-all-closed', () => {
   }
 })
 
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow()
-  }
+const { updateElectronApp } = require('update-electron-app')
+updateElectronApp({
+  repo: 'quantum-agornyrah/electron_app_tutorial',
 })
-
-require('update-electron-app')()
