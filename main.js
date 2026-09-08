@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain } = require('electron/main')
+const { app, BrowserWindow, ipcMain, dialog } = require('electron/main')
 const path = require('node:path')
 
 const createWindow = () => {
@@ -12,10 +12,24 @@ const createWindow = () => {
   })
   win.loadFile('index.html')
 }
+
+// EXPLAIN: 1. When the app is ready, listen for events with ipcMain.handle() API
 app.whenReady().then(() => {
-  ipcMain.handle('ping', () => 'pong')
+  ipcMain.handle('dialog:openFile', handleFileOpen)
   createWindow()
+ 
+  app.on('activate', function () {
+    if (BrowserWindow.getAllWindows().length === 0) createWindow()
+  })
 })
+
+// EXPLAIN: 2. Handle the filepath event with the callback function
+async function handleFileOpen () {
+  const { canceled, filePaths } = await dialog.showOpenDialog()
+  if (!canceled) {
+    return filePaths[0]
+  }
+}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
@@ -23,10 +37,7 @@ app.on('window-all-closed', () => {
   }
 })
 
-app.on('activate', () => {
-  if (BrowserWindow.getAllWindows().length === 0) {
-    createWindow()
-  }
+const { updateElectronApp } = require('update-electron-app')
+updateElectronApp({
+  repo: 'quantum-agornyrah/electron_app_tutorial',
 })
-
-require('update-electron-app')()
