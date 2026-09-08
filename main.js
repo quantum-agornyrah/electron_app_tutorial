@@ -1,4 +1,4 @@
-const { app, BrowserWindow, ipcMain, dialog } = require('electron/main')
+const { app, BrowserWindow, ipcMain, Menu } = require('electron/main')
 const path = require('node:path')
 
 const createWindow = () => {
@@ -10,26 +10,41 @@ const createWindow = () => {
       preload: path.join(__dirname, 'preload.js')
     }
   })
+
+  const menu = Menu.buildFromTemplate([
+    {
+      label: app.name,
+      submenu: [
+        {
+          click: () => win.webContents.send('update-counter', 1),
+          label: 'Increase counter'
+        },
+        {
+          click: () => win.webContents.send('update-counter', -1),
+          label: 'Decrease counter'
+        }
+      ]
+    }
+
+  ])
+  Menu.setApplicationMenu(menu)
   win.loadFile('index.html')
+
+  // Open the DevTools.
+  win.webContents.openDevTools()
 }
 
-// EXPLAIN: 1. When the app is ready, listen for events with ipcMain.handle() API
+// EXPLAIN: 1. When the app is ready, send a event from the ipcMain.on channel to the ipcRenderer.send channel
 app.whenReady().then(() => {
-  ipcMain.handle('dialog:openFile', handleFileOpen)
+  ipcMain.on('counter-value', (_event, value) => {
+    console.log(value) // will print value to Node console
+  })
   createWindow()
- 
+
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
   })
 })
-
-// EXPLAIN: 2. Handle the filepath event with the callback function
-async function handleFileOpen () {
-  const { canceled, filePaths } = await dialog.showOpenDialog()
-  if (!canceled) {
-    return filePaths[0]
-  }
-}
 
 app.on('window-all-closed', () => {
   if (process.platform !== 'darwin') {
