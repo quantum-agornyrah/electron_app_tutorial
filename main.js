@@ -6,8 +6,9 @@ const createWindow = () => {
     width: 800,
     height: 600,
 
+    // SECURITY 2: Do not enable Node.js integration for remote content
     webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
+      preload: path.join(app.getAppPath(), 'preload.js')
     }
   })
 
@@ -28,13 +29,14 @@ const createWindow = () => {
 
   ])
   Menu.setApplicationMenu(menu)
-  win.loadFile('index.html')
+
+  // SECURITY 1: Only load secure content
+  win.loadFile('https://index.html')
 
   // Open the DevTools.
   win.webContents.openDevTools()
 }
 
-// EXPLAIN: 1. When the app is ready, send a event from the ipcMain.on channel to the ipcRenderer.send channel
 app.whenReady().then(() => {
   ipcMain.on('counter-value', (_event, value) => {
     console.log(value) // will print value to Node console
@@ -51,6 +53,53 @@ app.on('window-all-closed', () => {
     app.quit()
   }
 })
+
+///////////////////////////////////////////////////////////////////
+// SECURITY 5: Handle session permission requests from remote content
+const { session } = require('electron')
+const { URL } = require('node:url')
+
+session
+  .defaultSession
+  .setPermissionRequestHandler((webContents, permission, callback) => {
+    const parsedUrl = new URL(webContents.getURL())
+
+    if (permission === 'notifications') {
+      // Approves the permissions request
+      callback(true)
+    }
+
+    // Verify URL
+    if (parsedUrl.protocol !== 'https:' || parsedUrl.host !== 'example.com') {
+      // Denies the permissions request
+      return callback(false)
+    }
+  })
+
+///////////////////////////////////////////////////////////////////
+// SESSION 7: Define a Content Security Policy
+const { session } = require('electron')
+
+session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
+  callback({
+    responseHeaders: {
+      ...details.responseHeaders,
+      'Content-Security-Policy': ['default-src \'none\'']
+    }
+  })
+})
+
+///////////////////////////////////////////////////////////////////
+// SESSION: 8. Do not enable allowRunningInsecureContent
+// Bad
+const mainWindow = new BrowserWindow({
+  webPreferences: {
+    allowRunningInsecureContent: true
+  }
+})
+
+// Good
+const mainWindow = new BrowserWindow({})
 
 const { updateElectronApp } = require('update-electron-app')
 updateElectronApp({
