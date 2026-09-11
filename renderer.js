@@ -1,9 +1,13 @@
-const counter = document.getElementById('counter')
+const systemTheme = document.getElementById('theme-source')
+const darkModeToggle = document.getElementById('toggle-dark-mode')
+const systemModeToggle = document.getElementById('reset-to-system')
 
-window.electronAPI.onUpdateCounter((value) => {
-  const oldValue = Number(counter.innerText)
-  const newValue = oldValue + value
-  
-  counter.innerText = newValue.toString()
-  window.electronAPI.counterValue(newValue)
+darkModeToggle.addEventListener('click', async () => {
+    const isDarkMode = await window.darkMode.toggle()
+    systemTheme.innerHTML = isDarkMode ? 'Dark Theme' : 'Light Theme'
+})
+
+systemModeToggle.addEventListener('click', async () => {
+    await window.darkMode.system()
+    systemTheme.innerHTML = 'System'
 })
