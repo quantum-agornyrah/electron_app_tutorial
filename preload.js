@@ -7,3 +7,20 @@ contextBridge.exposeInMainWorld('electronAPI', {
   counterValue: (value) => ipcRenderer.send('counter-value', value)
 
 })
+
+//////////////////////////////////////////////////////////////////
+// SECTION 20:  Do not expose Electron APIs to untrusted web content
+// Bad
+contextBridge.exposeInMainWorld('electronAPI', {
+  on: ipcRenderer.on
+})
+
+// Also bad
+contextBridge.exposeInMainWorld('electronAPI', {
+  onUpdateCounter: (callback) => ipcRenderer.on('update-counter', callback)
+})
+
+// Good
+contextBridge.exposeInMainWorld('electronAPI', {
+  onUpdateCounter: (callback) => ipcRenderer.on('update-counter', (_event, value) => callback(value))
+})
