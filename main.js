@@ -90,7 +90,7 @@ session.defaultSession.webRequest.onHeadersReceived((details, callback) => {
 })
 
 ///////////////////////////////////////////////////////////////////
-// SESSION: 8. Do not enable allowRunningInsecureContent
+// SESSION 8: Do not enable allowRunningInsecureContent
 // Bad
 const mainWindow = new BrowserWindow({
   webPreferences: {
@@ -101,6 +101,79 @@ const mainWindow = new BrowserWindow({
 // Good
 const mainWindow = new BrowserWindow({})
 
+
+/////////////////////////////////////////////////////////////////////////
+// SESSION 9 & 10: Do not use enableBlinkFeatures and experimentalFeatures
+// Bad
+const mainWindow = new BrowserWindow({
+  webPreferences: {
+    enableBlinkFeatures: 'ExecCommandInJavaScript',
+    experimentalFeatures: true,
+  }
+})
+
+// Good
+const mainWindow = new BrowserWindow()
+
+//////////////////////////////////////////////////////////////////////////
+// SECTION 13: Disable or limit navigation
+const { app } = require('electron')
+
+const { URL } = require('node:url')
+
+app.on('web-contents-created', (event, contents) => {
+  contents.on('will-navigate', (event, navigationUrl) => {
+    const parsedUrl = new URL(navigationUrl)
+
+    if (parsedUrl.origin !== 'https://example.com') {
+      event.preventDefault()
+    }
+  })
+})
+
+//////////////////////////////////////////////////////////////////////////
+// SECTION 14: Disable or limit creation of new windows
+const { app, shell } = require('electron')
+
+app.on('web-contents-created', (event, contents) => {
+  contents.setWindowOpenHandler(({ url }) => {
+    // In this example, we'll ask the operating system
+    // to open this event's url in the default browser.
+    //
+    // See the following item for considerations regarding what
+    // URLs should be allowed through to shell.openExternal.
+    if (isSafeForExternalOpen(url)) {
+      setImmediate(() => {
+        shell.openExternal(url)
+      })
+    }
+
+    return { action: 'deny' }
+  })
+})
+
+//////////////////////////////////////////////////////////////////
+// SECTION 17: Validate the sender of all IPC messages
+// Bad
+ipcMain.handle('get-secrets', () => {
+  return getSecrets()
+})
+
+// Good
+ipcMain.handle('get-secrets', (e) => {
+  if (!validateSender(e.senderFrame)) return null
+  return getSecrets()
+})
+
+function validateSender (frame) {
+  // Validate the frame's origin against an allowlist. Use the origin, not the
+  // URL: about:blank, blob: and sandboxed documents have URLs that do not
+  // identify who controls them, and the frame may be null if it has gone away.
+  if (frame && frame.origin === 'https://electronjs.org') return true
+  return false
+}
+
+//////////////////////////////////////////////////////////////////////////
 const { updateElectronApp } = require('update-electron-app')
 updateElectronApp({
   repo: 'quantum-agornyrah/electron_app_tutorial',
