@@ -1,18 +1,18 @@
 <!DOCTYPE html>
 <html>
-<head>
+  <head>
     <meta charset="UTF-8">
-    <title>Example Application</title>
-    <meta http-equiv="Content-Security-Policy" content="script-src 'self' 'unsafe-inline';" />
-    <link rel="stylesheet" href="style.css">
-</head>
-<body>
-    <h1>Dark Mode Example!</h1>
-    <p>Current theme source: <strong id="theme-source">System</strong></p>
+    <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
+    <title>Web Bluetooth API</title>
+  </head>
+  <body>
+    <h1>Web Bluetooth API</h1>
 
-    <button id="toggle-dark-mode">Toggle Dark Mode</button>
-    <button id="reset-to-system">Reset Theme Mode</button>
+    <button id="scanDevices">Test Bluetooth</button>
+    <button id="cancelScan">Cancel Bluetooth Request</button>
 
-    <script src="renderer.js"></script>
-</body>
+    <p>Currently selected bluetooth device: <strong id="device-name"></strong></p>
+
+    <script src="./renderer.js"></script>
+  </body>
 </html>
