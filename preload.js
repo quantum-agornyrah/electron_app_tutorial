@@ -1,5 +1,7 @@
-const { contextBridge, ipcRenderer } = require('electron/renderer')
+const { contextBridge } = require('electron/renderer')
 
-contextBridge.exposeInMainWorld('shell', {
-  open: () => ipcRenderer.send('shell:open')
+contextBridge.exposeInMainWorld('versions', {
+  node: () => process.versions.node,
+  chrome: () => process.versions.chrome,
+  electron: () => process.versions.electron
 })
