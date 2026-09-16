@@ -1,7 +1,9 @@
-const { contextBridge } = require('electron/renderer')
+const { ipcRenderer } = require('electron/renderer')
 
-contextBridge.exposeInMainWorld('versions', {
-  node: () => process.versions.node,
-  chrome: () => process.versions.chrome,
-  electron: () => process.versions.electron
+document.addEventListener('DOMContentLoaded', () => {
+  const textarea = document.getElementById('editable')
+  textarea.addEventListener('contextmenu', (event) => {
+    event.preventDefault()
+    ipcRenderer.send('context-menu')
+  })
 })
