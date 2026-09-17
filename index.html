@@ -4,15 +4,16 @@
     <meta charset="UTF-8">
     <!-- https://developer.mozilla.org/en-US/docs/Web/HTTP/CSP -->
     <meta http-equiv="Content-Security-Policy" content="default-src 'self'; script-src 'self'">
-    <title>Dock Menu Demo</title>
+    <title>Tray Menu Demo</title>
   </head>
   <body>
-    <h1>Dock Menu Demo</h1>
+    <h1>Tray Menu Demo</h1>
+    <p>This app will stay running even after all windows are closed.</p>
     <ul>
-      <li>Create new BrowserWindow instances via the "New Window" option</li>
-      <li>Close all BrowserWindow instances via the "Close All Windows" option</li>
-      <li>Read the docs via the "Show Electron Docs" option</li>
+      <li>Use the "Open App" menu item to focus the main window (or open one if it does not exist).</li>
+      <li>Change between red and green Tray icons with the "Set Green Icon" checkbox.</li>
+      <li>Give the Tray icon a title using the "Set Title" checkbox.</li>
+      <li>Quit the app using the "Quit" menu item.</li>
     </ul>
-    <script src="./renderer.js"></script>
   </body>
 </html>
