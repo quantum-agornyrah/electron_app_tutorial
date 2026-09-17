@@ -49,6 +49,18 @@ app.whenReady().then(() => {
   ])
 
   tray.setContextMenu(contextMenu)
+
+  // Left-clicking the tray icon restores/focuses the window
+  tray.on('click', () => {
+    const wins = BrowserWindow.getAllWindows()
+    if (wins.length === 0) {
+      createWindow()
+    } else {
+      if (wins[0].isMinimized()) wins[0].restore()
+      wins[0].show()
+      wins[0].focus()
+    }
+  })
 })
 
 app.on('window-all-closed', function () {
