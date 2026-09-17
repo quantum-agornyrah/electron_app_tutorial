@@ -1,31 +1,40 @@
-// Modules to control application life and create native browser window
-const { app, BrowserWindow, ipcMain, Menu } = require('electron/main')
-const path = require('node:path')
+const { app, BrowserWindow, Menu } = require('electron/main')
+const { shell } = require('electron/common')
 
 function createWindow () {
-  const mainWindow = new BrowserWindow({
-    webPreferences: {
-      preload: path.join(__dirname, 'preload.js')
-    }
-  })
+  const win = new BrowserWindow()
+  win.loadFile('index.html')
+}
 
-  mainWindow.loadFile('index.html')
-  const menu = Menu.buildFromTemplate([
-    { role: 'copy' },
-    { role: 'cut' },
-    { role: 'paste' },
-    { role: 'selectall' }
-  ])
-
-  ipcMain.on('context-menu', (event) => {
-    menu.popup({
-      window: BrowserWindow.fromWebContents(event.sender)
-    })
-  })
+function closeAllWindows () {
+  const wins = BrowserWindow.getAllWindows()
+  for (const win of wins) {
+    win.close()
+  }
 }
 
 app.whenReady().then(() => {
   createWindow()
+
+  const dockMenu = Menu.buildFromTemplate([
+    {
+      label: 'New Window',
+      click: () => { createWindow() }
+    },
+    {
+      label: 'Close All Windows',
+      click: () => { closeAllWindows() }
+    },
+    {
+      label: 'Open Electron Docs',
+      click: () => {
+        shell.openExternal('https://electronjs.org/docs')
+      }
+    }
+    // add more menu options to the array
+  ])
+
+  app.dock.setMenu(dockMenu)
 
   app.on('activate', function () {
     if (BrowserWindow.getAllWindows().length === 0) createWindow()
