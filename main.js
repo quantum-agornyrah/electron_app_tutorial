@@ -2,10 +2,12 @@ const { app, BrowserWindow } = require('electron/main')
 
 function createWindow () {
   const win = new BrowserWindow({
-    // remove the default titlebar
-    titleBarStyle: 'hidden',
+    width: 500,
+    height: 800,
+    resizable: false,
+    frame: false,
+    transparent: true
   })
-
   win.loadFile('index.html')
 }
 
